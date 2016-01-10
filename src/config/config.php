@@ -43,7 +43,8 @@ return array(
             'pass'      => 'myawesomepass',
             'path'      => '/path/to/server/',
             'port'      => 21,
-            'passive'   => true
+            'passive'   => true,
+            'asset_path'=> '/path/to/public_html/appname/'
         ),
 
         'production' => array(
@@ -53,7 +54,8 @@ return array(
             'pass'      => 'myawesomepass',
             'path'      => '/path/to/server/',
             'port'      => 21,
-            'passive'   => true
+            'passive'   => true,
+            'asset_path'=> '/path/to/public_html/appname/'
         ),
 
     ),
