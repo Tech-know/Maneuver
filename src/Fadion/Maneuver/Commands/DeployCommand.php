@@ -42,7 +42,8 @@ class DeployCommand extends Command {
         try {
             $options = array(
                 'server' => $this->option('server'),
-                'repo' => $this->option('repo')
+                'repo' => $this->option('repo'),
+                'assets' => $this->option('assets')
             );
 
             $maneuver = new Maneuver($options);
@@ -74,6 +75,7 @@ class DeployCommand extends Command {
         return array(
             array('server', 's', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL, 'Server to deploy to.', null),
             array('repo', 'r', InputOption::VALUE_OPTIONAL, 'Repository to use.', null),
+            array('assets', 'a', InputOption::VALUE_NONE, 'Deploy Public Folder To Assets Dir.')
         );
     }
 
