@@ -41,6 +41,11 @@ class Deploy {
     protected $isSubmodule = false;
 
     /**
+     * @var bool
+     */
+    protected $assetMode = false;
+
+    /**
      * @var array List of ignored files
      */
     protected $ignoredFiles;
@@ -49,6 +54,11 @@ class Deploy {
      * @var array List of files to upload
      */
     protected $filesToUpload;
+
+    /**
+     * @var array List of Asset files to upload
+     */
+    protected $assetsToUpload;
 
     /**
      * @var array List of files to delete
@@ -82,6 +92,7 @@ class Deploy {
         $remoteRevision = null;
         $filesToUpload = array();
         $filesToDelete = array();
+        $AssetsToUpload = array();
 
         // The revision file goes inside the submodule.
         if ($this->isSubmodule) {
@@ -121,11 +132,23 @@ class Deploy {
             $filesToUpload = $this->git->files();
         }
 
+        //Load Public Asset Files That need to Be deployed
+        foreach ($filesToUpload as $file)
+        {
+            $fileArr = explode('/', $file);
+            if($fileArr[0] == "public")
+            {
+                $assetsToUpload[] = $file;
+            }
+        }
+
         // Remove ignored files from the list of uploads.
         $filesToUpload = array_diff($filesToUpload, $this->ignoredFiles);
+        $assetsToUpload = array_diff($assetsToUpload, $this->ignoredFiles);
 
         $this->filesToUpload = $filesToUpload;
         $this->filesToDelete = $filesToDelete;
+        $this->assetsToUpload = $assetsToUpload;
 
         return $message;
     }
@@ -138,6 +161,16 @@ class Deploy {
     public function getFilesToUpload()
     {
         return $this->filesToUpload;
+    }
+
+    /**
+     * Getter for $this->assetsToUpload
+     *
+     * @return array
+     */
+    public function getAssetsToUpload()
+    {
+        return $this->assetsToUpload;
     }
 
     /**
@@ -182,6 +215,37 @@ class Deploy {
     }
 
     /**
+     * Enable asset mode 
+     * Change to Asset Directory
+     *
+     */
+    public function enableAssetUpload()
+    {
+        $this->assetMode = true;
+        $this->bridge->cd($this->server['asset_path']);
+    }
+
+    /**
+     * Get asset Directory
+     *
+     */
+    public function getAssetDir()
+    {
+        return $this->server['asset_path'];
+    }
+
+    /**
+     * Disable Asset mode 
+     * Change to Asset Directory
+     *
+     */
+    public function disableAssetUpload()
+    {
+        $this->assetMode = false;
+        $this->bridge->cd($this->server['path']);
+    }
+
+    /**
      * Uploads file
      *
      * @param string $file
@@ -194,6 +258,9 @@ class Deploy {
         }
 
         $dir = explode('/', dirname($file));
+        if($this->assetMode) {
+            $prefix = array_shift($dir);
+        }
         $path = '';
         $pathThatExists = null;
         $output = array();
@@ -238,14 +305,27 @@ class Deploy {
             }
 
             $data = file_get_contents($file);
-            $uploaded = $this->bridge->put($data, $file);
+
+            if($this->assetMode){
+                $fileArr = explode("/", $file);
+                array_shift($fileArr);
+                $remoteFile = implode("/", $fileArr);
+
+                $uploaded = $this->bridge->put($data, $remoteFile);
+
+            }
+            else {
+
+                $uploaded = $this->bridge->put($data, $file);
+            }
+
 
             if (!$uploaded) {
                 $attempts++;
             }
         }
 
-        $output[] = "√ \033[0;37m{$file}\033[0m \033[0;32muploaded\033[0m";
+        $output[] = ($this->assetMode) ? "√ \033[0;37m{$remoteFile}\033[0m \033[0;32muploaded\033[0m" : "√ \033[0;37m{$file}\033[0m \033[0;32muploaded\033[0m";
 
         return $output;
     }

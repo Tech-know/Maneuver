@@ -9,12 +9,12 @@ use Fadion\Maneuver\Commands\SyncCommand;
 class ManeuverServiceProvider extends ServiceProvider
 {
 
-	/**
-	 * Indicates if loading of the provider is deferred.
-	 *
-	 * @var bool
-	 */
-	protected $defer = false;
+    /**
+     * Indicates if loading of the provider is deferred.
+     *
+     * @var bool
+     */
+    protected $defer = false;
 
     /**
      * Boot the service provider.
@@ -28,13 +28,13 @@ class ManeuverServiceProvider extends ServiceProvider
         ]);
     }
 
-	/**
-	 * Register the service provider.
-	 *
-	 * @return void
-	 */
-	public function register()
-	{
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
+    public function register()
+    {
         $this->app['artisan.maneuver.deploy'] = $this->app->share(function($app) {
             return new DeployCommand;
         });
@@ -55,16 +55,16 @@ class ManeuverServiceProvider extends ServiceProvider
         $this->commands('artisan.maneuver.list');
         $this->commands('artisan.maneuver.rollback');
         $this->commands('artisan.maneuver.sync');
-	}
+    }
 
-	/**
-	 * Get the services provided by the provider.
-	 *
-	 * @return array
-	 */
-	public function provides()
-	{
-		return array('maneuver');
-	}
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return array('maneuver');
+    }
 
 }

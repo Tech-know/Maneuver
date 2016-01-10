@@ -29,6 +29,11 @@ class Maneuver {
     protected $optSyncCommit = null;
 
     /**
+     * @var bool $optAssets
+     */
+    protected $optAssets = false;
+
+    /**
      * @var string $mode
      */
     protected $mode;
@@ -62,13 +67,14 @@ class Maneuver {
     {
         // Merge options with a set of null defaults,
         // so parameters can be omitted safely.
-        $defaults = array('server' => null, 'repo' => null, 'rollback' => null, 'sync' => null);
+        $defaults = array('server' => null, 'repo' => null, 'rollback' => null, 'sync' => null, 'assets' => false);
         $options = array_merge($defaults, $options);
 
         $this->optServer = $options['server'];
         $this->optRepo = $options['repo'];
         $this->optRollback = $options['rollback'];
         $this->optSyncCommit = $options['sync'];
+        $this->optAssets = $options['assets'];
     }
 
     /**
@@ -196,6 +202,7 @@ class Maneuver {
 
         $filesToUpload = $deploy->getFilesToUpload();
         $filesToDelete = $deploy->getFilesToDelete();
+        $assetsToUpload = $deploy->getAssetsToUpload();
 
         if ($filesToUpload) {
             foreach ($filesToUpload as $file) {
@@ -224,6 +231,38 @@ class Maneuver {
                 }
 
                 print "\n" . $deploy->delete($file);
+            }
+        }
+
+        //If Asset files have changed and option flag is passed
+        if($assetsToUpload and $this->optAssets) {
+           
+            print "\n+ ------------ Assets ------------- +";
+
+            //Navigate to Asset Directory 
+            $deploy->enableAssetUpload();
+
+            //Get Asset Dir
+            $assetPath = $deploy->getAssetDir();
+
+            print "\n» Deploying Assets To: $assetPath";
+
+            //Deploy Public Files to Asset Folder
+            foreach($assetsToUpload as $file) {
+
+                // On list mode, just print the file.
+                if($this->mode == self::MODE_LIST) {
+                    print "\n√ \033[0;37m{$file}\033[0m \033[0;32mwill be uploaded\033[0m";
+                    continue;
+                }
+
+                $output = $deploy->upload($file);
+
+                // An upload procedure may have more than one
+                // output message (uploaded file, created dir, etc).
+                foreach ($output as $message) {
+                    print "\n" . $message;
+                }
             }
         }
 
