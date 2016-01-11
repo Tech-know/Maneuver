@@ -92,7 +92,7 @@ class Deploy {
         $remoteRevision = null;
         $filesToUpload = array();
         $filesToDelete = array();
-        $AssetsToUpload = array();
+        $assetsToUpload = array();
 
         // The revision file goes inside the submodule.
         if ($this->isSubmodule) {
