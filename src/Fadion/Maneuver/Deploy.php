@@ -266,7 +266,7 @@ class Deploy {
         $output = array();
 
         // Skip basedir or parent.
-        if ($dir[0] != '.' and $dir[0] != '..') {
+        if (count($dir) and $dir[0] != '.' and $dir[0] != '..') {
             // Iterate through directory pieces.
             for ($i = 0, $count = count($dir); $i < $count; $i++) {
                 $path .= $dir[$i].'/';
